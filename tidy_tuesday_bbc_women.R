@@ -38,7 +38,7 @@ write_csv(x = women, path = "women_new.csv")
 
 # Leaflet map -------------------------------------------------------------
 
-pops <- purrr::map(.x = seq(nrow(women)),
+labelz <- purrr::map(.x = seq(nrow(women)),
                    .f = function(i) {
                      paste0("<figure>", "<img src = ", women[i, "img"], 
                             ' width="150" height="150" ', ">", "<figcaption>",
@@ -55,7 +55,7 @@ pops <- purrr::map(.x = seq(nrow(women)),
 wmap <- leaflet(data = women) %>%
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
   addCircleMarkers(lng = ~long, lat = ~lat, 
-                   label = purrr::map(.x = pops, .f = htmltools::HTML),
+                   label = purrr::map(.x = labelz, .f = htmltools::HTML),
                    popup = ~htmlEscape(description),
                    labelOptions = labelOptions(noHide = FALSE, textsize = "15px"),
                    clusterOptions = markerClusterOptions())
@@ -79,9 +79,18 @@ cglobe <- women_counts %>%
   e_charts(long) %>% 
   e_globe(
     # environment = ea_asset("starfield"),
-    base_texture = ea_asset("world topo"),
+    base_texture = ea_asset("world"),
     # height_texture = ea_asset("world topo"),
-    displacementScale = 0.01
+    displacementScale = 0.01,
+    light = list(
+      ambient = list(
+        intensity = 1
+      ),
+      main = list(
+        intensity = .1,
+        shadow = FALSE
+      )
+    )
   ) %>% 
   e_bar_3d(lat, value, coord_system = "globe") %>% 
   e_visual_map(value)
@@ -128,7 +137,7 @@ bar_chart <- hchart(
   women_cat_cnts,
   "column",
   hcaes(x = category, y = counts, name = category, drilldown = category),
-  name = "Number of Women",
+  name = "Category",
   colorByPoint = TRUE
 ) %>% 
   hc_drilldown(
